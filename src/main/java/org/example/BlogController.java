@@ -1,7 +1,9 @@
 package org.example;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +15,20 @@ import java.util.HashMap;
 
 @RestController
 public class BlogController {
+    Logger logger = LoggerFactory.getLogger(BlogController.class);
+
+    @Autowired
+    ArticleManager articleManager;
+
     @Value("${mju.blog.articles_per_page}")
     int articlesPerPage;
 
     @GetMapping("/hello")
     public String hello(){
+        logger.debug("hello");
+        logger.info("hello");
+        logger.warn("hello");
+        logger.error("hello");
         return "world";
     }
 
@@ -28,10 +39,7 @@ public class BlogController {
 
     @GetMapping("/article/titles")
     public Object getArticleTitles(){
-        ArrayList<String> a = new ArrayList<>();
-        a.add("제목1");
-        a.add("제목2");
-        return a;
+        return articleManager.getTitles();
     }
 
     @GetMapping("/article/{number}")
@@ -41,14 +49,14 @@ public class BlogController {
         h.put("number", "1");
         return h;*/
         GetArticleResponse r = new GetArticleResponse();
-        r.title = "happy day";
         r.number = blogNumber;
+        r.title = articleManager.getTitleAt(blogNumber);
         return r;
     }
 
     @PostMapping("/article")
     public void postArticle(@RequestBody PostArticleRequest body){
-        System.out.println(body.title);
+        articleManager.getTitles().add(body.title);
     }
 
     @GetMapping("/error1/{code}")
